@@ -24,10 +24,11 @@ pipeline {
                         sh "pwd; docker build -t ${pep8StageDockerImage} -f decisionengine_modules/.github/actions/pep8-in-sl7-docker/Dockerfile.jenkins decisionengine_modules/.github/actions/pep8-in-sl7-docker/"
                         echo "Run ${STAGE_NAME} tests"
                         sh "pwd; docker run --rm -v ${WORKSPACE}:${WORKSPACE} -w ${WORKSPACE} ${pep8StageDockerImage}"
+                        sh 'for artifact_file in pep8.master.log pylint.master.log results.master.log mail.results; do mv -v ${artifact_file} ${STAGE_NAME}.${artifact_file}; done'
                     }
                     post {
                         always {
-                            archiveArtifacts artifacts: "pep8.master.log,pylint.master.log,results.master.log,mail.results"
+                            archiveArtifacts artifacts: "${STAGE_NAME}.pep8.master.log,${STAGE_NAME}.pylint.master.log,${STAGE_NAME}.results.master.log,${STAGE_NAME}.mail.results"
                             echo "cleanup docker image ${pep8StageDockerImage}"
                             sh "docker rmi ${pep8StageDockerImage}"
                         }
@@ -54,10 +55,11 @@ pipeline {
                         sh "pwd; docker build -t ${pylintStageDockerImage} -f decisionengine_modules/.github/actions/pylint-in-sl7-docker/Dockerfile.jenkins decisionengine_modules/.github/actions/pylint-in-sl7-docker/"
                         echo "Run ${STAGE_NAME} tests"
                         sh "pwd; docker run --rm -v ${WORKSPACE}:${WORKSPACE} -w ${WORKSPACE} ${pylintStageDockerImage}"
+                        sh 'for artifact_file in pep8.master.log pylint.master.log results.master.log mail.results; do mv -v ${artifact_file} ${STAGE_NAME}.${artifact_file}; done'
                     }
                     post {
                         always {
-                            archiveArtifacts artifacts: "pep8.master.log,pylint.master.log,results.master.log,mail.results"
+                            archiveArtifacts artifacts: "${STAGE_NAME}.pep8.master.log,${STAGE_NAME}.pylint.master.log,${STAGE_NAME}.results.master.log,${STAGE_NAME}.mail.results"
                             echo "cleanup docker image ${pylintStageDockerImage}"
                             sh "docker rmi ${pylintStageDockerImage}"
                         }
