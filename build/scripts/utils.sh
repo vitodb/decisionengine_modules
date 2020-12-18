@@ -33,7 +33,7 @@ setup_python_venv() {
     if [ $? -ne 0 ]; then
         echo "Installing $pip_packages ... FAILED"
     fi
-    pip install classad htcondor
+    pip install htcondor
     pip3 install --index-url https://test.pypi.org/simple --no-deps bill-calculator-hep-mapsacosta==0.0.9
     pip install pyyaml
     # Need this because some strange control sequences when using default TERM=xterm
@@ -60,7 +60,7 @@ setup_glideinwms() {
 setup_de_framework() {
     wspace=${1:-`pwd`}
     cd $wspace
-    git clone --depth 1 --branch 1.4.0-rc https://github.com/HEPCloud/decisionengine.git
+    git clone --depth 1 --branch 1.4.1 https://github.com/HEPCloud/decisionengine.git
 }
 
 
