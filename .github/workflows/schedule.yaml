@@ -1,0 +1,30 @@
+
+---
+name: schedule RPM builds
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '29 21 * * *'
+
+jobs:
+  rpmbuild_el7:
+    name: Build an EL7 rpm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code tree
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run the build in a container (SL7/HEPCloud-CI)
+        uses: ./.github/actions/python-command-in-sl7-container
+        with:
+          python-command: "setup.py bdist_rpm"
+          logfile: "rpmbuild.log"
+
+      - name: Archive rpm
+        uses: actions/upload-artifact@v2
+        with:
+          name: rpms-master
+          path: dist/*.rpm
+          if-no-files-found: error
