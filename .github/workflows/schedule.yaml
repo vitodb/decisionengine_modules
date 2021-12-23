@@ -4,7 +4,7 @@ name: schedule RPM builds
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '29 21 * * *'
+    - cron:  '20 21 * * *'
 
 jobs:
   rpmbuild_el7:
