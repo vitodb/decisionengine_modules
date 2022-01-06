@@ -39,6 +39,6 @@ jobs:
       - name: Archive rpm
         uses: actions/upload-artifact@v2
         with:
-          name: rpms-${{github.event.inputs.branch}}-${{github.event.inputs.timestamp}}
+          name: rpms-DEM-${{github.event.inputs.branch}}-${{github.event.inputs.timestamp}}
           path: dist/*.rpm
           if-no-files-found: error
