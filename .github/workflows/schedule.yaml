@@ -1,10 +1,9 @@
-
 ---
 name: schedule RPM builds
 on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '45 21 * * *'
+  #schedule:
+  #  # * is a special character in YAML so you have to quote this string
+  #  - cron:  '45 21 * * *'
 
   workflow_dispatch:
     inputs:
@@ -12,6 +11,13 @@ on:
         description: 'branch ref'
         required: true
         default: 'master'
+      timestamp:
+        description: 'timestamp identifier'
+        required: true
+      branch:
+        description: 'branch name'
+        default: 'master'
+        required: false
 
 jobs:
   rpmbuild_el7:
@@ -22,16 +28,17 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{github.event.inputs.branch}}
 
       - name: Run the build in a container (SL7/HEPCloud-CI)
         uses: ./.github/actions/python-command-in-sl7-container
         with:
-          python-command: "setup.py bdist_rpm"
-          logfile: "rpmbuild.log"
+          python-command: 'setup.py bdist_rpm'
+          logfile: 'rpmbuild.log'
 
       - name: Archive rpm
         uses: actions/upload-artifact@v2
         with:
-          name: rpms-master
+          name: rpms-${{github.event.inputs.branch}}-${{github.event.inputs.timestamp}}
           path: dist/*.rpm
           if-no-files-found: error
