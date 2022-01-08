@@ -1,5 +1,5 @@
 ---
-name: schedule RPM builds
+name: Publish RPMs
 on:
   push:
     branches: [ master ]
