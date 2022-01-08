@@ -1,10 +1,6 @@
 ---
 name: schedule RPM builds
 on:
-  #schedule:
-  #  # * is a special character in YAML so you have to quote this string
-  #  - cron:  '45 21 * * *'
-  
   push:
     branches: [ master ]
 
@@ -14,9 +10,6 @@ on:
         description: 'branch ref'
         required: true
         default: 'master'
-      timestamp:
-        description: 'timestamp identifier'
-        required: true
       branch:
         description: 'branch name'
         default: 'master'
@@ -42,27 +35,32 @@ jobs:
       - name: Archive rpm
         uses: actions/upload-artifact@v2
         with:
-          name: rpms-DEM-${{github.event.inputs.branch}}-${{github.event.inputs.timestamp}}
+          name: rpms
           path: dist/*.rpm
           if-no-files-found: error
           
-      - name: print Name Variables
+      - name: Check variables
         run: |
           echo "ref: ${GITHUB_REF}"
-          echo "ref: ${GITHUB_REF##*/}-draft"
-          echo "upload_url ${{ steps.create_release.outputs.upload_url }}"
+          echo "branch: ${{github.event.inputs.branch}}"
+          echo "ref: draft-${GITHUB_REF##*/}${{github.event.inputs.branch}}"
+          myREF_tmp="${{github.event.inputs.branch}}"
+          echo "ref: draft-${myREF_tmp:-${GITHUB_REF##*/}}"
           pwd
           ls dist
           
       - name: Upload RPMs
         run: |
           set -x
-          hub release delete "${GITHUB_REF##*/}-draft" || :
+          myREF_tmp="${{github.event.inputs.branch}}"
+          echo "ref: draft-${myREF_tmp:-${GITHUB_REF##*/}}"
+          hub release delete "draft-${myREF_tmp:-${GITHUB_REF##*/}}" || :
           assets=()
           for asset in ./dist/*.rpm; do
-            assets+=("-a" "$asset")
+            assets+=("-a" "${asset}")
           done
-          hub release create -p "${assets[@]}" -m "${GITHUB_REF##*/}-draft" "${GITHUB_REF##*/}-draft"
-          echo "hub release exit status: ${?}"
+          hub release create -p "${assets[@]}" \
+              -m "RPMs for ${myREF_tmp:-${GITHUB_REF##*/}} branch" \
+              "draft-${myREF_tmp:-${GITHUB_REF##*/}}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
