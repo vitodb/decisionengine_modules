@@ -4,17 +4,35 @@
 ---
 name: Build DecisionEngine Modules RPM
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'branch ref'
+        required: true
+        default: 'master'
 
 jobs:
   rpmbuild_el7:
     name: Build an EL7 rpm
     runs-on: ubuntu-latest
     steps:
+      - name: Set custom variables
+        run: |
+          export timestamp=$(date +%Y%m%d-%H%M%S)
+          echo "timestamp: ${timestamp}"
+          echo "timestamp=${timestamp}" >> ${GITHUB_ENV}
+          export my_wfd_branch=${{github.event.inputs.ref}}
+          echo "mybranch: ${my_wfd_branch:-${GITHUB_REF##*/}}"
+          echo "mybranch=${my_wfd_branch:-${GITHUB_REF##*/}}" >> ${GITHUB_ENV}
+          cat ${GITHUB_ENV}
       - name: Checkout code tree
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{env.mybranch}}
 
       - name: Run the build in a container (SL7/HEPCloud-CI)
         uses: ./.github/actions/python-command-in-sl7-container
@@ -25,6 +43,6 @@ jobs:
       - name: Archive rpm
         uses: actions/upload-artifact@v2
         with:
-          name: rpms
+          name: rpms-DEM-${{env.mybranch}}-${{env.timestamp}}
           path: dist/*.rpm
           if-no-files-found: error
