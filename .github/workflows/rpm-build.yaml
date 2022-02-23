@@ -21,12 +21,9 @@ jobs:
     steps:
       - name: Set custom variables
         run: |
-          export timestamp=$(date +%Y%m%d-%H%M%S)
-          echo "timestamp: ${timestamp}"
-          echo "timestamp=${timestamp}" >> ${GITHUB_ENV}
-          export my_wfd_branch=${{github.event.inputs.ref}}
-          echo "mybranch: ${my_wfd_branch:-${GITHUB_REF##*/}}"
-          echo "mybranch=${my_wfd_branch:-${GITHUB_REF##*/}}" >> ${GITHUB_ENV}
+          echo "timestamp=$(date +%Y%m%d-%H%M%S)" >> ${GITHUB_ENV}
+          export my_branch_tmp=${{github.event.inputs.ref}}
+          echo "mybranch=${my_branch_tmp:-${GITHUB_REF##*/}}" >> ${GITHUB_ENV}
           cat ${GITHUB_ENV}
       - name: Checkout code tree
         uses: actions/checkout@v2
