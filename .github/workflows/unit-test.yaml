@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
-name: Test in EL7 container
+name: Test in EL7/EL8 container
 
 on:
   pull_request:
