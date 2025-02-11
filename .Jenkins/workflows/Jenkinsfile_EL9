@@ -135,16 +135,16 @@ pipeline {
                             fi
                             cd ..
                         '''
-                        echo "prepare docker image ${buildwhlStageDockerImage}"
-                        sh "docker build --pull --tag ${buildwhlStageDockerImage} --build-arg BASEIMAGE=hepcloud/decision-engine-ci-el9:${BRANCH} --build-arg UID=\$(id -u) --build-arg GID=\$(id -g) -f decisionengine_modules/package/ci/EL9/Dockerfile decisionengine_modules/package/ci/EL9/"
+                        echo "prepare podman image ${buildwhlStageDockerImage}"
+                        sh "podman build --pull --tag ${buildwhlStageDockerImage} --build-arg BASEIMAGE=hepcloud/decision-engine-ci-el9:${BRANCH} --build-arg UID=\$(id -u) --build-arg GID=\$(id -g) -f decisionengine_modules/package/ci/EL9/Dockerfile decisionengine_modules/package/ci/EL9/"
                         echo "Run ${STAGE_NAME} tests"
-                        sh "docker run --rm --env GITHUB_PR_NUMBER=${GITHUB_PR_NUMBER} --env PYTEST_TIMEOUT=${PYTEST_TIMEOUT} -v ${WORKSPACE}/decisionengine_modules:${WORKSPACE}/decisionengine_modules -w ${WORKSPACE}/decisionengine_modules ${buildwhlStageDockerImage} \"setup.py bdist_wheel\" \"build_whl.log\" \"${BRANCH}\""
+                        sh "podman run --userns keep-id:uid=\$(id -u),gid=\$(id -g) --rm --env GITHUB_PR_NUMBER=${GITHUB_PR_NUMBER} --env PYTEST_TIMEOUT=${PYTEST_TIMEOUT} -v ${WORKSPACE}/decisionengine_modules:${WORKSPACE}/decisionengine_modules -w ${WORKSPACE}/decisionengine_modules ${buildwhlStageDockerImage} \"setup.py bdist_wheel\" \"build_whl.log\" \"${BRANCH}\""
                     }
                     post {
                         always {
                             archiveArtifacts artifacts: "decisionengine_modules/build_whl.log,decisionengine_modules/dist/*.whl"
-                            echo "cleanup docker image ${buildwhlStageDockerImage}"
-                            sh "docker rmi ${buildwhlStageDockerImage}"
+                            echo "cleanup podman image ${buildwhlStageDockerImage}"
+                            sh "podman rmi ${buildwhlStageDockerImage}"
                         }
                     }
                 }
